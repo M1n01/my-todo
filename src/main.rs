@@ -1,7 +1,7 @@
 mod handlers;
 mod repositories;
 
-use crate::repositories::{TodoRepository, TodoRepositoryForMemory};
+use crate::repositories::{TodoRepository, TodoRepositoryForDb};
 use axum::{
     extract::Extension,
     routing::{get, post},
@@ -11,14 +11,25 @@ use handlers::{all_todo, create_todo, delete_todo, find_todo, update_todo};
 use std::net::SocketAddr;
 use std::{env, sync::Arc};
 
+use dotenv::dotenv;
+use sqlx::PgPool;
+
 #[tokio::main]
 async fn main() {
     // loggingの初期化
     let log_level = env::var("RUST_LOG").unwrap_or("info".to_string());
     env::set_var("RUST_LOG", log_level);
     tracing_subscriber::fmt::init();
+    dotenv().ok();
 
-    let repository = TodoRepositoryForMemory::new();
+    let database_url = &env::var("DATABASE_URL").expect("undefined [DATABASE_URL]");
+    tracing::debug!("start connecting to database...");
+    let pool = PgPool::connect(database_url).await.expect(&format!(
+        "fail to connect database, url is [{}]",
+        database_url
+    ));
+
+    let repository = TodoRepositoryForDb::new(pool.clone());
     let app = create_app(repository);
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("listening on {}", addr);
@@ -48,7 +59,7 @@ async fn root() -> &'static str {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::repositories::{CreateTodo, Todo};
+    use crate::repositories::{test_utils::TodoRepositoryForMemory, CreateTodo, Todo};
     use axum::response::Response;
     use axum::{
         body::Body,
@@ -77,7 +88,8 @@ mod test {
     async fn res_to_todo(res: Response) -> Todo {
         let bytes = hyper::body::to_bytes(res.into_body()).await.unwrap();
         let body: String = String::from_utf8(bytes.to_vec()).unwrap();
-        let todo: Todo = serde_json::from_str(&body).expect(&format!("cannot convert Todo instance. body: {}", body));
+        let todo: Todo = serde_json::from_str(&body)
+            .expect(&format!("cannot convert Todo instance. body: {}", body));
         todo
     }
 
