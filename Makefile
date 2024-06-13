@@ -8,6 +8,8 @@ down:
 	docker compose down --remove-orphans
 
 dev:
+	sqlx db create
+	sqlx migrate run
 	cargo watch -x run
 
 test:
