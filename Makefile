@@ -20,4 +20,4 @@ test-s:
 	cargo test --no-default-features
 
 PHONY:
-	build db down dev test
+	build db down dev test test-s
