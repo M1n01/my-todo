@@ -1,16 +1,16 @@
-import { useState, FC } from 'react'
-import 'modern-css-reset'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { Box, Typography } from '@mui/material'
-import { NewTodoPayload, Todo } from './types/todo'
-import TodoForm from './components/TodoForm'
+import { useState, FC } from 'react';
+import 'modern-css-reset';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Box, Typography } from '@mui/material';
+import { NewTodoPayload, Todo } from './types/todo';
+import TodoForm from './components/TodoForm';
 
 const TodoApp: FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([])
-  const createId = () => todos.length + 1
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const createId = () => todos.length + 1;
 
   const onSubmit = async (payload: NewTodoPayload) => {
-    if (!payload.text) return
+    if (!payload.text) return;
     setTodos((prev) => [
       {
         id: createId(),
@@ -18,8 +18,8 @@ const TodoApp: FC = () => {
         completed: false,
       },
       ...prev,
-    ])
-  }
+    ]);
+  };
 
   return (
     <>
@@ -52,26 +52,26 @@ const TodoApp: FC = () => {
         </Box>
       </Box>
     </>
-  )
-}
+  );
+};
 
 const theme = createTheme({
-    typography: {
-        h1: {
-          fontSize: 30,
-        },
-        h2: {
-          fontSize: 20,
-        },
+  typography: {
+    h1: {
+      fontSize: 30,
     },
-})
+    h2: {
+      fontSize: 20,
+    },
+  },
+});
 
 const App: FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <TodoApp />
     </ThemeProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

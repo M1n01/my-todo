@@ -1,22 +1,22 @@
-import { FC, useState } from 'react'
-import { NewTodoPayload } from '../types/todo'
-import { Box, TextField, Button, Paper, Grid } from '@mui/material'
+import { FC, useState } from 'react';
+import { NewTodoPayload } from '../types/todo';
+import { Box, TextField, Button, Paper, Grid } from '@mui/material';
 
 type Props = {
-  onSubmit: (newTodo: NewTodoPayload) => void
-}
+  onSubmit: (newTodo: NewTodoPayload) => void;
+};
 
 const TodoForm: FC<Props> = ({ onSubmit }) => {
   const [editText, setEditText] = useState('');
-  
+
   const addTodoHandler = async () => {
-    if (!editText) return
+    if (!editText) return;
 
     onSubmit({
       text: editText,
-    })
-    setEditText('')
-  }
+    });
+    setEditText('');
+  };
 
   return (
     <Paper>
@@ -40,7 +40,7 @@ const TodoForm: FC<Props> = ({ onSubmit }) => {
         </Grid>
       </Box>
     </Paper>
-  )
-}
+  );
+};
 
-export default TodoForm
+export default TodoForm;
