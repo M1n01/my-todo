@@ -19,9 +19,9 @@ const TodoForm: FC<Props> = ({ onSubmit }) => {
   };
 
   return (
-    <Paper>
+    <Paper elevation={2}>
       <Box sx={{ p: 2 }}>
-        <Grid container rowSpacing={2}>
+        <Grid container rowSpacing={2} columnSpacing={5}>
           <Grid item xs={12}>
             <TextField
               label="new todo text"
