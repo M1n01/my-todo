@@ -1,7 +1,7 @@
+use super::RepositoryError;
 use axum::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use super::RepositoryError;
 
 #[async_trait]
 pub trait LabelRepository: Clone + std::marker::Send + std::marker::Sync + 'static {
@@ -37,20 +37,20 @@ impl LabelRepositoryForDb {
 impl LabelRepository for LabelRepositoryForDb {
     async fn create(&self, name: String) -> anyhow::Result<Label> {
         let optional_label = sqlx::query_as::<_, Label>(
-              r#"
+            r#"
               select * from labels where name = $1
               "#,
-            )
-            .bind(name.clone())
-            .fetch_optional(&self.pool)
-            .await?;
+        )
+        .bind(name.clone())
+        .fetch_optional(&self.pool)
+        .await?;
 
         if let Some(label) = optional_label {
             return Err(RepositoryError::Duplicate(label.id).into());
         }
 
         let label = sqlx::query_as::<_, Label>(
-          r#"
+            r#"
             insert into labels (name) values ($1) returning *
           "#,
         )
@@ -63,7 +63,7 @@ impl LabelRepository for LabelRepositoryForDb {
 
     async fn all(&self) -> anyhow::Result<Vec<Label>> {
         let labels = sqlx::query_as::<_, Label>(
-          r#"
+            r#"
             select * from labels
             order by id asc;
           "#,
@@ -76,7 +76,7 @@ impl LabelRepository for LabelRepositoryForDb {
 
     async fn delete(&self, id: i32) -> anyhow::Result<()> {
         sqlx::query(
-          r#"
+            r#"
             delete from labels where id=$1
           "#,
         )
@@ -84,8 +84,8 @@ impl LabelRepository for LabelRepositoryForDb {
         .execute(&self.pool)
         .await
         .map_err(|e| match e {
-          sqlx::Error::RowNotFound => RepositoryError::NotFound(id),
-          _ => RepositoryError::Unexpected(e.to_string()),
+            sqlx::Error::RowNotFound => RepositoryError::NotFound(id),
+            _ => RepositoryError::Unexpected(e.to_string()),
         })?;
 
         Ok(())
@@ -97,7 +97,6 @@ impl LabelRepository for LabelRepositoryForDb {
 mod tests {
     use super::*;
     use dotenv::dotenv;
-    use sqlx::PgPool;
     use std::env;
 
     #[tokio::test]
@@ -105,8 +104,8 @@ mod tests {
         dotenv().ok();
         let database_url = &env::var("DATABASE_URL").expect("undefined [DATABASE_URL]");
         let pool = PgPool::connect(database_url)
-        .await
-        .expect(&format!("Failed to connect to {}", database_url));
+            .await
+            .expect(&format!("Failed to connect to {}", database_url));
 
         let repository = LabelRepositoryForDb::new(pool);
         let label_text = "test_label";
@@ -127,7 +126,6 @@ mod tests {
             .expect("Failed to delete label");
     }
 }
-
 
 #[cfg(test)]
 pub mod test_utils {
